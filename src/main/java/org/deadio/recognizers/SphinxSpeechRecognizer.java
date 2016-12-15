@@ -1,4 +1,4 @@
-package org.deadio;
+package org.deadio.recognizers;
 
 import edu.cmu.sphinx.api.Configuration;
 import edu.cmu.sphinx.api.SpeechResult;
@@ -15,17 +15,19 @@ import java.util.stream.Collectors;
 /**
  * Created by yoni on 12/12/16.
  */
-public class SpeechRecognizer {
+public class SphinxSpeechRecognizer implements SpeechRecognizer {
     private final Configuration sphinxConfiguration = new edu.cmu.sphinx.api.Configuration();;
+    private final StreamSpeechRecognizer recognizer;
 
-    public SpeechRecognizer(){
+    public SphinxSpeechRecognizer() throws IOException {
         sphinxConfiguration.setAcousticModelPath("resource:/edu/cmu/sphinx/models/en-us/en-us");
         sphinxConfiguration.setDictionaryPath("resource:/edu/cmu/sphinx/models/en-us/cmudict-en-us.dict");
         sphinxConfiguration.setLanguageModelPath("resource:/edu/cmu/sphinx/models/en-us/en-us.lm.bin");
+
+        recognizer = new StreamSpeechRecognizer(sphinxConfiguration);
     }
 
     public String recognize(File audioFilepath) throws IOException {
-        StreamSpeechRecognizer recognizer = new StreamSpeechRecognizer(sphinxConfiguration);
         StringBuilder stringBuilder = new StringBuilder();
         try {
             try (InputStream inputStream = new FileInputStream(audioFilepath)){

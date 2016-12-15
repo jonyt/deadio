@@ -10,9 +10,14 @@
 
     <dependencies>
         <dependency>
-            <groupId>ie.corballis</groupId>
-            <artifactId>sox-java</artifactId>
-            <version>1.0.1</version>
+            <groupId>com.mashape.unirest</groupId>
+            <artifactId>unirest-java</artifactId>
+            <version>1.4.9</version>
+        </dependency>
+        <dependency>
+            <groupId>com.auth0</groupId>
+            <artifactId>java-jwt</artifactId>
+            <version>3.0.2</version>
         </dependency>
         <dependency>
             <groupId>edu.cmu.sphinx</groupId>
@@ -24,6 +29,24 @@
             <artifactId>sphinx4-data</artifactId>
             <version>5prealpha-SNAPSHOT</version>
         </dependency>
+        <!-- for date parsing -->
+        <dependency>
+            <groupId>com.rubiconproject.oss</groupId>
+            <artifactId>jchronic</artifactId>
+            <version>0.2.6</version>
+        </dependency>
+        <dependency> <!-- http://natty.joestelmach.com/ -->
+            <groupId>com.joestelmach</groupId>
+            <artifactId>natty</artifactId>
+            <version>0.11</version>
+        </dependency>
+        <!-- https://mvnrepository.com/artifact/org.ocpsoft.prettytime/prettytime -->
+        <dependency><!-- http://www.ocpsoft.org/prettytime/nlp/ VERY PROMISING -->
+            <groupId>org.ocpsoft.prettytime</groupId>
+            <artifactId>prettytime</artifactId>
+            <version>4.0.0.Final</version>
+        </dependency>
+        <!-- end date parsing -->
     </dependencies>
 
     <build>
@@ -37,7 +60,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>eu.ferari.examples.distributedcount.bare.Main</mainClass>
+                            <mainClass>org.deadio.SoxStreaming</mainClass>
                         </manifest>
                     </archive>
                 </configuration>

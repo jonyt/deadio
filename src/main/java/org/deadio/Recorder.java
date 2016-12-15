@@ -1,6 +1,6 @@
 package org.deadio;
 
-import ie.corballis.sox.WrongParametersException;
+import org.deadio.recognizers.SphinxSpeechRecognizer;
 
 import java.io.*;
 import java.util.ArrayList;
@@ -8,6 +8,8 @@ import java.util.List;
 
 /**
  * Created by yoni on 12/12/16.
+ * See http://digitalcardboard.com/blog/2009/08/25/the-sox-of-silence/ for some good advice on Sox.
+ * Also, this works: /usr/bin/sox --bits 16 --encoding unsigned-integer --rate 16000 --channels 1 --default-device --endian little --buffer 16000 /tmp/recording.wav silence 1 0.1 10% 1 1.1 10%
  */
 public class Recorder {
     private final String pathToSox = "/usr/bin/sox";
@@ -16,6 +18,9 @@ public class Recorder {
     private final int sampleRateKHz = 16;
     private final int numChannels = 1;
     private final int numSecondsToRecord = 5;
+    private final String noiseLevelPercentage = "10%";
+    private final double leadingSilenceDetection = 0.3;
+    private final double trailingSilenceDetection = 1.3;
     private final String outputFilepath = "/tmp/recording.wav";
     private final List<String> arguments = new ArrayList<>();
 
@@ -36,9 +41,13 @@ public class Recorder {
         arguments.add("--buffer");
         arguments.add(String.valueOf(sampleRateKHz * 1000 * numChannels * numSecondsToRecord));
         arguments.add(outputFilepath);
-        arguments.add("trim");
-        arguments.add("0");
-        arguments.add(String.valueOf(numSecondsToRecord));
+        arguments.add("silence");
+        arguments.add("1");
+        arguments.add(String.valueOf(leadingSilenceDetection));
+        arguments.add(noiseLevelPercentage);
+        arguments.add("1");
+        arguments.add(String.valueOf(trailingSilenceDetection));
+        arguments.add(noiseLevelPercentage);
     }
 
     public void record() throws IOException {
@@ -71,28 +80,13 @@ public class Recorder {
         }
     }
 
-    public static void main(String[] args) throws WrongParametersException, IOException {
-        SpeechRecognizer speechRecognizer = new SpeechRecognizer();
+    public static void main(String[] args) throws IOException {
+        SphinxSpeechRecognizer speechRecognizer = new SphinxSpeechRecognizer();
 
         Recorder recorder = new Recorder();
         recorder.record();
 
         String result = speechRecognizer.recognize(new File("/tmp/recording.wav"));
         System.out.println("Recognized: " + result);
-
-
-
-
-
-        //sox -b 32 -e unsigned-integer -r 96k -c 2 -d --clobber --buffer $((96000*2*3)) /tmp/soxrecording.wav trim 0 10
-//        Sox sox = new Sox("/usr/bin/sox");
-//        sox
-//            .sampleRate(16000)
-//            .encoding(SoXEncoding.UNSIGNED_INTEGER)
-//            .bits(32)
-//            .fileType(AudioFileFormat.WAV)
-//            .outputFile("output.wav")
-//            .argument("--default-device")
-//            .execute();
     }
 }
