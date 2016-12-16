@@ -25,9 +25,9 @@ public class Utils {
 
 // TODO:
 //  * Create main class (runs loop, plays sound file (see http://stackoverflow.com/a/11514812) and listens for results) (Main, Query)
-//  * Get mortality data from http://apps.who.int/gho/data/view.main.60040?lang=en, use expectation of life at age x
-//  * Query mortality data and provide death estimate (LifeExpectancyInfo)
-//  * Read it out (TextToSpeech)
+//  * Get mortality data from http://apps.who.int/gho/data/view.main.60040?lang=en, use expectation of life at age x (Crawler)
+//  * Query mortality data and provide death estimate (LifeExpectancyInfo - getLifeExpectancy(gender, country, age))
+//  * Read it out (TextToSpeech translate(text))
 
 
 //
