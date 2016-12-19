@@ -21,4 +21,28 @@ public class Observation {
         this.gender = gender;
         this.lifeExpectancy = lifeExpectancy;
     }
+
+    public String getCountryCode() {
+        return countryCode;
+    }
+
+    public int getYear() {
+        return year;
+    }
+
+    public int getMinAge() {
+        return minAge;
+    }
+
+    public int getMaxAge() {
+        return maxAge;
+    }
+
+    public String getGender() {
+        return gender;
+    }
+
+    public double getLifeExpectancy() {
+        return lifeExpectancy;
+    }
 }

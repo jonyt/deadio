@@ -11,27 +11,54 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.xpath.*;
-import java.io.ByteArrayInputStream;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  * Created by yoni on 16/12/16.
  */
 public class Crawler {
-    public List<Observation> getData(String countryCode) throws Exception {
-        String url = generateUrl(countryCode);
-        HttpResponse<String> response = Unirest.get(url).asString();
-        if (response.getStatus() != 200)
-            throw new Exception("Request unsuccessful: " + response.getStatusText());
+    private final String cacheDir;
 
-        return parseResponse(countryCode, response.getBody());
+    public Crawler(String cacheDir){
+        this.cacheDir = cacheDir;
+        new File(cacheDir).mkdirs();
+    }
+
+    public List<Observation> getData(String countryCode, boolean shouldParse) throws Exception {
+        Path cachedResponseFilePath = Paths.get(cacheDir, generateFilename(countryCode));
+        String xml;
+        if (cachedResponseFilePath.toFile().exists()){
+            System.out.println("File exists");
+            xml = new String(Files.readAllBytes(cachedResponseFilePath));
+        } else {
+            String url = generateUrl(countryCode);
+            System.out.println("Downloading [" + url + "]");
+            HttpResponse<String> response = Unirest.get(url).asString();
+            if (response.getStatus() != 200)
+                throw new Exception("Request unsuccessful: " + response.getStatusText());
+            xml = response.getBody();
+            try (PrintWriter writer = new PrintWriter(cachedResponseFilePath.toFile())){
+                writer.write(xml);
+            }
+        }
+
+        if (shouldParse)
+            return parseResponse(countryCode, xml);
+        else
+            return null;
+    }
+
+    private String generateFilename(String countryCode){
+        return countryCode + ".xml";
     }
 
     private String generateUrl(String countryCode){
@@ -118,11 +145,29 @@ public class Crawler {
         }
     }
 
+    public static Map<String, String> getMapFromCSV(final String filePath) throws IOException{
+        Stream<String> lines = Files.lines(Paths.get(filePath));
+        Map<String, String> resultMap = lines
+                                            .map(line -> line.split(","))
+                                            .collect(Collectors.toMap(line -> line[1], line -> line[0]));
+        lines.close();
+
+        return resultMap;
+    }
+
     public static void main(String[] args) throws ParserConfigurationException, SAXException, XPathExpressionException, IOException {
-        Path path = Paths.get("/tmp/garb.xml");
-        String xml = new String(Files.readAllBytes(path), StandardCharsets.UTF_8);
-        Crawler crawler = new Crawler();
-        List<Observation> observations = crawler.parseResponse("rrr", xml);
-        String h = "rr";
+        File countryCodesFile = new File(Crawler.class.getClassLoader().getResource("country_codes.csv").getFile());
+        Map<String, String> countryCodes = getMapFromCSV(countryCodesFile.getAbsolutePath());
+        Crawler crawler = new Crawler("/tmp/cache");
+        countryCodes.keySet().forEach(code -> {
+            try {
+                System.out.println("Getting data for code " + code);
+                crawler.getData(code, false);
+            } catch (Exception e) {
+                System.err.println("Error on code " + code);
+                e.printStackTrace();
+                System.exit(1);
+            }
+        });
     }
 }
