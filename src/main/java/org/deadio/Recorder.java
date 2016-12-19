@@ -21,10 +21,9 @@ public class Recorder {
     private final String noiseLevelPercentage = "10%";
     private final double leadingSilenceDetection = 0.3;
     private final double trailingSilenceDetection = 1.3;
-    private final String outputFilepath = "/tmp/recording.wav";
     private final List<String> arguments = new ArrayList<>();
 
-    public Recorder(){
+    public Recorder(String outputFilepath){
         arguments.add(pathToSox);
         arguments.add("--bits");
         arguments.add(String.valueOf(bits));
@@ -82,11 +81,11 @@ public class Recorder {
 
     public static void main(String[] args) throws IOException {
         SphinxSpeechRecognizer speechRecognizer = new SphinxSpeechRecognizer();
-
-        Recorder recorder = new Recorder();
+        String filepath = "/tmp/recording.wav";
+        Recorder recorder = new Recorder(filepath);
         recorder.record();
 
-        String result = speechRecognizer.recognize(new File("/tmp/recording.wav"));
+        String result = speechRecognizer.recognize(new File(filepath));
         System.out.println("Recognized: " + result);
     }
 }

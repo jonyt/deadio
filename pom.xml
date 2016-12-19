@@ -25,6 +25,11 @@
             <version>3.7.2</version>
         </dependency>
         <dependency>
+            <groupId>de.dfki.mary</groupId>
+            <artifactId>voice-cmu-slt-hsmm</artifactId>
+            <version>5.2</version>
+        </dependency>
+        <dependency>
             <groupId>edu.cmu.sphinx</groupId>
             <artifactId>sphinx4-core</artifactId>
             <version>5prealpha-SNAPSHOT</version>
@@ -54,6 +59,13 @@
         <!-- end date parsing -->
     </dependencies>
 
+    <repositories>
+        <repository>
+            <id>jcenter</id>
+            <url>https://jcenter.bintray.com</url>
+        </repository>
+    </repositories>
+
     <build>
         <plugins>
             <plugin>
@@ -65,7 +77,7 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>org.deadio.SoxStreaming</mainClass>
+                            <mainClass>org.deadio.Main</mainClass>
                         </manifest>
                     </archive>
                 </configuration>
