@@ -5,6 +5,8 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.mashape.unirest.http.HttpResponse;
 import com.mashape.unirest.http.Unirest;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,6 +18,8 @@ import java.util.UUID;
  * Created by yoni on 15/12/16.
  */
 public class BingSpeechRecognizer implements SpeechRecognizer {
+    private static final Logger logger = LoggerFactory.getLogger(BingSpeechRecognizer.class);
+
     private final String key;
     private final String instanceId;
     private String token;
@@ -44,6 +48,7 @@ public class BingSpeechRecognizer implements SpeechRecognizer {
         if (response.getStatus() != 200)
             throw new Exception("Response error: " + response.getStatusText());
 
+        logger.debug("Got successful response from Bing: {}", response.getBody());
         RecognitionResult recognitionResult = parseResponse(response.getBody());
         if (!recognitionResult.isSuccess())
             throw new Exception("Request failed");
@@ -71,7 +76,7 @@ public class BingSpeechRecognizer implements SpeechRecognizer {
         ObjectMapper objectMapper = new ObjectMapper();
         JsonNode rootNode = objectMapper.readTree(responseBody);
         JsonNode headerNode = rootNode.get("header");
-        boolean isSuccess = headerNode.get("status").asBoolean();
+        boolean isSuccess = headerNode.get("status").asText().equals("success");
         String text = headerNode.get("lexical").asText();
 
         return new RecognitionResult(isSuccess, text);
