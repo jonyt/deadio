@@ -53,10 +53,16 @@
         <!-- https://mvnrepository.com/artifact/org.ocpsoft.prettytime/prettytime -->
         <dependency><!-- http://www.ocpsoft.org/prettytime/nlp/ VERY PROMISING -->
             <groupId>org.ocpsoft.prettytime</groupId>
-            <artifactId>prettytime</artifactId>
+            <artifactId>prettytime-nlp</artifactId>
             <version>4.0.0.Final</version>
         </dependency>
         <!-- end date parsing -->
+        <!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-log4j12 -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-log4j12</artifactId>
+            <version>1.7.22</version>
+        </dependency>
     </dependencies>
 
     <repositories>
