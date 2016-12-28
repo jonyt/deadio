@@ -27,6 +27,10 @@ public class MaryTTS {
         }
     }
 
+    public void speak(String inputText) throws SynthesisException, IOException, LineUnavailableException {
+        speak(inputText, null);
+    }
+
     public void speak(String inputText, String outputFilepath) throws SynthesisException, IOException, LineUnavailableException {
         try (AudioInputStream audio = mary.generateAudio(inputText)){
             playSound(audio);
