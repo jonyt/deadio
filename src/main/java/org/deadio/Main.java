@@ -1,6 +1,7 @@
 package org.deadio;
 
 import org.deadio.recognizers.BingSpeechRecognizer;
+import org.deadio.recognizers.PocketSphinxRecognizer;
 import org.deadio.tts.MaryTTS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,13 +25,20 @@ public class Main {
         String deviceUuid = System.getenv("DEVICE-UUID");
 
         MaryTTS textToSpeech = new MaryTTS();
-//        SphinxSpeechRecognizer sphinxSpeechRecognizer = new SphinxSpeechRecognizer();
+
         BingSpeechRecognizer bingSpeechRecognizer = new BingSpeechRecognizer(azureKey, deviceUuid);
         String speechFilepath = "/tmp/speech_recording.wav";
         Recorder recorder = new Recorder(speechFilepath);
-        Database database = new Database("lifeExpectancy.db");
+        Database database = new Database("src/main/resources/lifeExpectancy.db");
+        PocketSphinxRecognizer pocketSphinxRecognizer = new PocketSphinxRecognizer();
 
         while (true){
+            textToSpeech.speak("Ready. Say \"Let's go dead IO\" to start.");
+            pocketSphinxRecognizer.waitForKeyPhrase();
+
+            textToSpeech.speak("Please answer the following three questions");
+            textToSpeech.speak("Please use complete sentences when answering the questions, it makes it easier for me to understand you.");
+
             String country;
             String ageString;
             String gender;
@@ -83,7 +91,8 @@ public class Main {
 
             double lifeExpectancy = database.getLifeExpectancy(country, gender, age);
             textToSpeech.speak(Utils.getFinalMessage(lifeExpectancy));
-            Thread.sleep(10000);
+
+            Thread.sleep(5000);
         }
     }
 }

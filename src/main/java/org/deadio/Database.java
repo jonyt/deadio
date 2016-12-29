@@ -2,6 +2,8 @@ package org.deadio;
 
 import org.deadio.crawling.Crawler;
 import org.deadio.crawling.Observation;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,6 +18,8 @@ import static org.deadio.crawling.Crawler.getMapFromCSV;
  * Created by yoni on 18/12/16.
  */
 public class Database implements AutoCloseable {
+    private static final Logger logger = LoggerFactory.getLogger(Database.class);
+
     private final Connection connection;
 
     public Database(String dbFilename) throws ClassNotFoundException, SQLException {
@@ -28,11 +32,13 @@ public class Database implements AutoCloseable {
         try (Statement statement = connection.createStatement()){
             String query = String.format(
                     "SELECT lifeExpectancy FROM data WHERE country = \"%s\" AND gender = \"%s\" AND %d >= minAge AND %d <= maxAge",
-                    country, gender, age
+                    country, gender, age, age
             );
+            logger.debug("Querying DB with: {}", query);
             ResultSet rs = statement.executeQuery(query);
+
             while(rs.next())
-                lifeExpectancy = rs.getDouble(0);
+                lifeExpectancy = rs.getDouble(1);
         }
 
         if (lifeExpectancy == null)
@@ -91,23 +97,25 @@ public class Database implements AutoCloseable {
     }
 
     public static void main(String[] args) throws Exception {
-        File countryCodesFile = new File(Crawler.class.getClassLoader().getResource("country_codes.csv").getFile());
-        Map<String, String> countryCodes = getMapFromCSV(countryCodesFile.getAbsolutePath());
-        Crawler crawler = new Crawler("/tmp/cache");
-        try (Database database = new Database("lifeExpectancy.db")){
-            database.createTable();
-            for (Map.Entry<String, String> codeToCountry: countryCodes.entrySet()) {
-                System.out.println("Inserting data for " + codeToCountry.getValue());
-                List<Observation> observations = crawler.getData(codeToCountry.getKey(), true);
-                if (observations.isEmpty())
-                    continue;
-                int maxYear = observations.stream().mapToInt(Observation::getYear).max().getAsInt();
-                List<Observation> latestObservations = observations
-                                                            .stream()
-                                                            .filter(observation -> observation.getYear() == maxYear)
-                                                            .collect(Collectors.toList());
-                database.insertData(latestObservations, countryCodes);
-            }
-        }
+//        File countryCodesFile = new File(Crawler.class.getClassLoader().getResource("country_codes.csv").getFile());
+//        Map<String, String> countryCodes = getMapFromCSV(countryCodesFile.getAbsolutePath());
+//        Crawler crawler = new Crawler("/tmp/cache");
+//        try (Database database = new Database("lifeExpectancy.db")){
+//            database.createTable();
+//            for (Map.Entry<String, String> codeToCountry: countryCodes.entrySet()) {
+//                System.out.println("Inserting data for " + codeToCountry.getValue());
+//                List<Observation> observations = crawler.getData(codeToCountry.getKey(), true);
+//                if (observations.isEmpty())
+//                    continue;
+//                int maxYear = observations.stream().mapToInt(Observation::getYear).max().getAsInt();
+//                List<Observation> latestObservations = observations
+//                                                            .stream()
+//                                                            .filter(observation -> observation.getYear() == maxYear)
+//                                                            .collect(Collectors.toList());
+//                database.insertData(latestObservations, countryCodes);
+//            }
+//        }
+        Database database = new Database("src/main/resources/lifeExpectancy.db");
+        System.out.println(database.getLifeExpectancy("Germany", "male", 21));
     }
 }
